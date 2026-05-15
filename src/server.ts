@@ -41,6 +41,7 @@ const InitDb = async () => {
     ) `)
 }
 
+
 InitDb()
 // middleware to parse JSON bodies
 app.use(express.json())
@@ -50,14 +51,26 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!')
 })
 
-app.post("/", (req: Request, res: Response) => {
-  res.status(200).json({
-    message: "POST request received",
-    status: "success"
-  })
+app.post("/users", async (req: Request, res: Response) => {
+  const { name, email } = req.body
+
+  try {
+    const result = await pool.query(`INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *`, [name, email])
+
+    res.status(201).json({
+      message: "User created successfully",
+      status: true,
+      data: result.rows[0]
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      message: "Error in creating user",
+      status: false,
+      error: error.message
+    })
+  }
 })
 
-app.listen(port, async () => {
-  await InitDb()
+app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
