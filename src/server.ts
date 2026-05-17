@@ -51,6 +51,7 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!')
 })
 
+//  Users CRUD
 app.post("/users", async (req: Request, res: Response) => {
   const { name, email } = req.body
 
@@ -59,13 +60,29 @@ app.post("/users", async (req: Request, res: Response) => {
 
     res.status(201).json({
       message: "User created successfully",
-      status: true,
+      success: true,
       data: result.rows[0]
     })
   } catch (error: any) {
     res.status(500).json({
       message: "Error in creating user",
-      status: false,
+      success: false,
+      error: error.message
+    })
+  }
+})
+app.get("/users", async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query(`SELECT * FROM users`)
+    res.status(200).json({
+      message: "Users retrieved successfully",
+      success: true,
+      data: result.rows
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      message: "Error in retrieving users",
+      success: false,
       error: error.message
     })
   }
